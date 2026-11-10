@@ -228,6 +228,72 @@ endpoint.
 Для всех облачных вариантов нужен ключ с доступом к vision-модели. Если API
 вернул `429`, это лимит бесплатного тарифа: подождите или переключите провайдера.
 
+### Быстрый LM Studio
+
+Для GTX 1660 6 GB оптимальнее не держать 7B с большим контекстом, а
+использовать **Qwen2.5-VL-3B-Instruct** или 7B с уменьшенным контекстом.
+
+Быстрый запуск:
+
+```powershell
+cd "D:\Projects\Automatization_images_firefox"
+npm run lmstudio:fast
+```
+
+Или напрямую:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File scripts/lmstudio-fast.ps1
+```
+
+Скрипт сам выберет 3B, если она скачана, иначе 7B. Для 7B он ставит
+GPU offload `0.75`, context `4096`, parallel `1` — так модель не упирается в
+6 GB VRAM. Для 3B — полный GPU, context `8192`.
+
+Ручная настройка в LM Studio:
+
+```text
+Model:       qwen/qwen2.5-vl-3b
+GPU offload: max
+Context:     8192
+Parallel:    1
+Keep loaded: on
+TTL:         off
+```
+
+Для 7B:
+
+```text
+Model:       qwen/qwen2.5-vl-7b
+GPU offload: 0.75
+Context:     4096
+Parallel:    1
+```
+
+Почему так:
+
+- `parallel: 1` — расширение отправляет один запрос за раз, лишние слоты только
+  занимают VRAM;
+- context `4096` для 7B — изображение и ответ ингредиентов помещаются с запасом;
+- 7B на 6 GB лучше не выгружать полностью: Windows тоже занимает видеопамять;
+- модель должна оставаться загруженной, иначе первый запрос снова ждёт загрузку
+  несколько секунд.
+
+В `config.local.json` для локального режима:
+
+```json
+{
+  "provider": "lmstudio",
+  "apiKey": "",
+  "model": "qwen/qwen2.5-vl-7b",
+  "baseUrl": "http://localhost:1234/v1"
+}
+```
+
+После установки 3B замените модель на `qwen/qwen2.5-vl-3b`. Если в настройках
+расширения выбран Gemini/Groq, переключите провайдера на **LM Studio** или
+**Auto**.
+
 ### DeepSeek и другие варианты
 
 Официальный API DeepSeek — платный, отдельного бесплатного тарифа для API нет.
