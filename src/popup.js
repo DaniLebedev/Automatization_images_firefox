@@ -12,6 +12,7 @@
     permission: document.getElementById("permission"),
     done: document.getElementById("done"),
     next: document.getElementById("next"),
+    ingredients: document.getElementById("ingredients"),
     options: document.getElementById("options"),
   };
 
@@ -221,6 +222,18 @@
     } catch (error) {
       setStatus(`Не удалось запросить доступ: ${error.message || error}`, true);
     }
+  });
+
+  elements.ingredients.addEventListener("click", async () => {
+    const response = await send("food-outline:open-ingredients");
+    if (!response || !response.ok) {
+      setStatus(
+        `Не удалось открыть ингредиенты: ${response && response.error ? response.error : "нет ответа"}`,
+        true
+      );
+      return;
+    }
+    window.close();
   });
 
   elements.options.addEventListener("click", () => {

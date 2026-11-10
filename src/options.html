@@ -42,6 +42,22 @@
       </section>
 
       <section class="card">
+        <h2>LM Studio</h2>
+        <p class="muted">
+          Нужна vision-модель, например <code>qwen/qwen2.5-vl-7b</code>.
+          Анализ ингредиентов идёт через локальный LM Studio.
+        </p>
+        <label class="field">
+          <span>URL</span>
+          <input id="lm-url" type="url" placeholder="http://localhost:1234/v1" />
+        </label>
+        <label class="field">
+          <span>Модель</span>
+          <input id="lm-model" type="text" placeholder="auto (первая VLM)" />
+        </label>
+      </section>
+
+      <section class="card">
         <h2>Данные</h2>
         <p id="scope-count" class="muted">Загружаю…</p>
         <div class="actions">
@@ -57,10 +73,10 @@
       <section class="card">
         <h2>Горячие клавиши</h2>
         <ul class="keys">
-          <li><kbd>Alt</kbd>+<kbd>Shift</kbd>+<kbd>D</kbd> — отметить текущую карточку</li>
-          <li><kbd>Alt</kbd>+<kbd>Shift</kbd>+<kbd>U</kbd> — снять отметку</li>
-          <li><kbd>Alt</kbd>+<kbd>Shift</kbd>+<kbd>N</kbd> — следующая неотмеченная</li>
-          <li><kbd>Alt</kbd>+<kbd>Shift</kbd>+<kbd>P</kbd> — открыть/закрыть панель</li>
+          <li><kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>D</kbd> — отметить текущую карточку</li>
+          <li><kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>U</kbd> — снять отметку</li>
+          <li><kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>N</kbd> — следующая неотмеченная</li>
+          <li><kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>P</kbd> — открыть/закрыть панель</li>
         </ul>
       </section>
 

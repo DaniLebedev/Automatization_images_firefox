@@ -14,8 +14,16 @@
   const clearButton = document.getElementById("clear");
   const importInput = document.getElementById("import");
   const message = document.getElementById("message");
+  const lmUrl = document.getElementById("lm-url");
+  const lmModel = document.getElementById("lm-model");
 
-  let settings = { autoOpen: true, autoNext: true, showLauncher: true };
+  let settings = {
+    autoOpen: true,
+    autoNext: true,
+    showLauncher: true,
+    lmStudioUrl: "http://localhost:1234/v1",
+    lmStudioModel: "",
+  };
 
   function showMessage(text, isError) {
     message.textContent = text;
@@ -33,6 +41,8 @@
     autoOpen.checked = Boolean(settings.autoOpen);
     autoNext.checked = Boolean(settings.autoNext);
     showLauncher.checked = Boolean(settings.showLauncher);
+    lmUrl.value = settings.lmStudioUrl || "http://localhost:1234/v1";
+    lmModel.value = settings.lmStudioModel || "";
     const keys = Object.keys(data).filter((key) => key.startsWith(STATE_PREFIX));
     scopeCount.textContent = `Сохранено диапазонов: ${keys.length}`;
   }
@@ -42,6 +52,8 @@
       autoOpen: autoOpen.checked,
       autoNext: autoNext.checked,
       showLauncher: showLauncher.checked,
+      lmStudioUrl: lmUrl.value.trim() || "http://localhost:1234/v1",
+      lmStudioModel: lmModel.value.trim(),
     };
     await storage.set({ [SETTINGS_KEY]: settings });
     showMessage("Настройки сохранены");
@@ -127,6 +139,8 @@
   autoOpen.addEventListener("change", saveSettings);
   autoNext.addEventListener("change", saveSettings);
   showLauncher.addEventListener("change", saveSettings);
+  lmUrl.addEventListener("change", saveSettings);
+  lmModel.addEventListener("change", saveSettings);
   exportButton.addEventListener("click", exportAll);
   clearButton.addEventListener("click", clearAll);
   importInput.addEventListener("change", () => importFile(importInput.files[0]));

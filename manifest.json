@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
   "name": "Food Outline Progress",
-  "version": "0.1.5",
+  "version": "0.1.6",
   "description": "Progress tracker and range helper for food annotation tasks.",
   "incognito": "spanning",
   "permissions": ["storage", "tabs", "activeTab", "<all_urls>"],
@@ -21,7 +21,7 @@
   "commands": {
     "_execute_browser_action": {
       "suggested_key": {
-        "default": "Alt+Shift+O"
+        "default": "Ctrl+Alt+O"
       },
       "description": "Открыть Food Outline Progress"
     }

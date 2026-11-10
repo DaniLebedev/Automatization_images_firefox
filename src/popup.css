@@ -121,6 +121,10 @@ button:disabled {
   grid-column: 1 / -1;
 }
 
+.actions .wide {
+  grid-column: 1 / -1;
+}
+
 .hint {
   color: #8b93a0;
   font-size: 10.5px;

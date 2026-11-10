@@ -1,7 +1,7 @@
 (function () {
   "use strict";
 
-  const HUD_VERSION = "0.1.5";
+  const HUD_VERSION = "0.1.6";
   const L = globalThis.FoodOutlineLib;
   if (!L) {
     return;
@@ -50,6 +50,7 @@
     lastDoneAt: null,
     timeSpentMs: 0,
     position: null,
+    ingredients: [],
     updatedAt: null,
   });
 
@@ -220,6 +221,13 @@
       details.textContent =
         s.completedIds.length > 0 ? s.completedIds.join(", ") : "пока пусто";
     }
+    const ingredients = getEl("ingredients");
+    if (ingredients) {
+      ingredients.textContent =
+        Array.isArray(state.ingredients) && state.ingredients.length > 0
+          ? state.ingredients.join(", ")
+          : "—";
+    }
 
     panel.classList.toggle("is-collapsed", Boolean(state.collapsed));
     panel.classList.toggle("is-hidden", !state.panelOpen);
@@ -333,10 +341,26 @@
       frameInput.dispatchEvent(new KeyboardEvent("keydown", enter));
       frameInput.dispatchEvent(new KeyboardEvent("keypress", enter));
       frameInput.dispatchEvent(new KeyboardEvent("keyup", enter));
+      window.setTimeout(() => {
+        if (document.activeElement === frameInput) {
+          frameInput.blur();
+        }
+        try {
+          frameInput.setSelectionRange(0, 0);
+        } catch (_error) {
+          // number inputs may not support selection ranges
+        }
+        if (window.getSelection) {
+          window.getSelection().removeAllRanges();
+        }
+      }, 200);
       manualCurrent = id;
       currentId = id;
       render();
       window.setTimeout(() => {
+        if (document.activeElement === frameInput) {
+          frameInput.blur();
+        }
         manualCurrent = null;
         syncCurrentId();
         render();
@@ -466,6 +490,97 @@
     });
   }
 
+  function capturePageImage() {
+    const area = (element) => {
+      const rect = element.getBoundingClientRect();
+      return Math.max(0, rect.width) * Math.max(0, rect.height);
+    };
+    const images = [...document.querySelectorAll("img")]
+      .filter((img) => img.naturalWidth >= 120 && img.naturalHeight >= 80 && area(img) > 0)
+      .sort((left, right) => area(right) - area(left));
+    for (const image of images) {
+      try {
+        const canvas = document.createElement("canvas");
+        canvas.width = image.naturalWidth;
+        canvas.height = image.naturalHeight;
+        const context = canvas.getContext("2d");
+        context.drawImage(image, 0, 0);
+        return canvas.toDataURL("image/jpeg", 0.9);
+      } catch (_error) {
+        // Cross-origin image; try the next candidate.
+      }
+    }
+    const canvases = [...document.querySelectorAll("canvas")]
+      .filter((canvas) => canvas.width >= 120 && canvas.height >= 80 && area(canvas) > 0)
+      .sort((left, right) => area(right) - area(left));
+    for (const canvas of canvases) {
+      try {
+        return canvas.toDataURL("image/jpeg", 0.9);
+      } catch (_error) {
+        // Tainted canvas; try the next candidate.
+      }
+    }
+    return null;
+  }
+
+  async function analyzeImage(dataUrl) {
+    const result = getEl("ingredients");
+    if (result) {
+      result.textContent = "Анализирую через LM Studio…";
+    }
+    state.ingredients = [];
+    try {
+      const response = await api.runtime.sendMessage({
+        type: "food-outline:analyze",
+        image: dataUrl,
+      });
+      if (!response || !response.ok) {
+        throw new Error(response && response.error ? response.error : "нет ответа");
+      }
+      state.ingredients = Array.isArray(response.ingredients)
+        ? response.ingredients
+        : [];
+      saveState();
+      render();
+      showMessage(
+        state.ingredients.length > 0
+          ? `Найдено ингредиентов: ${state.ingredients.length}`
+          : "Ингредиенты не распознаны"
+      );
+    } catch (error) {
+      render();
+      showMessage(`Анализ не удался: ${error.message || error}`, true);
+    }
+  }
+
+  function analyzeFile(file) {
+    if (!file) {
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = () => {
+      if (typeof reader.result === "string") {
+        analyzeImage(reader.result);
+      }
+    };
+    reader.onerror = () => showMessage("Не удалось прочитать файл", true);
+    reader.readAsDataURL(file);
+  }
+
+  async function copyIngredients() {
+    const text = Array.isArray(state.ingredients) ? state.ingredients.join("\n") : "";
+    if (!text) {
+      showMessage("Список ингредиентов пуст", true);
+      return;
+    }
+    try {
+      await navigator.clipboard.writeText(text);
+      showMessage("Список скопирован");
+    } catch (_error) {
+      showMessage("Не удалось скопировать", true);
+    }
+  }
+
   function buildUi(css) {
     const host = document.createElement("div");
     host.id = "food-outline-hud-root";
@@ -530,8 +645,17 @@
             <summary>Отмеченные ID</summary>
             <div data-role="completed-list">пока пусто</div>
           </details>
+          <details class="fo-ingredients" data-role="ingredients-details">
+            <summary>Ингредиенты по фото</summary>
+            <div class="fo-ing-actions">
+              <button type="button" data-action="analyze-page">Со страницы</button>
+              <label class="fo-file">Файл<input type="file" accept="image/*" data-role="ingredient-file"></label>
+            </div>
+            <div class="fo-ing-result" data-role="ingredients">—</div>
+            <button type="button" class="fo-link" data-action="copy-ingredients">Копировать</button>
+          </details>
           <div class="fo-message" data-role="message"></div>
-          <div class="fo-hint">Alt+Shift+D — готово · Alt+Shift+N — следующий · Alt+Shift+U — снять</div>
+          <div class="fo-hint">Ctrl+Alt+D — готово · Ctrl+Alt+N — следующий · Ctrl+Alt+U — снять</div>
         </div>
       </section>
     `;
@@ -565,6 +689,19 @@
             manualCurrent = Number(value.trim());
             render();
           }
+        } else if (action === "analyze-page") {
+          const dataUrl = capturePageImage();
+          if (!dataUrl) {
+            showMessage("Не нашёл изображение на странице. Выберите файл.", true);
+            const file = getEl("ingredient-file");
+            if (file) {
+              file.click();
+            }
+          } else {
+            analyzeImage(dataUrl);
+          }
+        } else if (action === "copy-ingredients") {
+          copyIngredients();
         } else if (action === "apply") {
           applyRange();
         } else if (action === "done") {
@@ -594,6 +731,12 @@
       state.autoNext = autoNext.checked;
       saveState();
     });
+    const ingredientFile = getEl("ingredient-file");
+    if (ingredientFile) {
+      ingredientFile.addEventListener("change", () => {
+        analyzeFile(ingredientFile.files[0]);
+      });
+    }
     render();
   }
 
@@ -611,7 +754,7 @@
   }
 
   function onKeyDown(event) {
-    if (!event.altKey || !event.shiftKey) {
+    if (!event.ctrlKey || !event.altKey || event.shiftKey) {
       return;
     }
     const target = event.target;
@@ -623,20 +766,20 @@
     ) {
       return;
     }
-    const key = event.key.toLowerCase();
-    if (key === "d") {
+    const code = event.code;
+    if (code === "KeyD") {
       event.preventDefault();
       markDone();
-    } else if (key === "u") {
+    } else if (code === "KeyU") {
       event.preventDefault();
       markUndone();
-    } else if (key === "n") {
+    } else if (code === "KeyN") {
       event.preventDefault();
       const next = stats().next;
       if (next !== null) {
         goToId(next);
       }
-    } else if (key === "p") {
+    } else if (code === "KeyP") {
       event.preventDefault();
       togglePanel();
     }
@@ -674,6 +817,14 @@
         goToId(next);
       }
       sendResponse({ ok: true, next });
+    } else if (message.type === "food-outline:open-ingredients") {
+      togglePanel(true);
+      const details = getEl("ingredients-details");
+      if (details) {
+        details.open = true;
+        details.scrollIntoView({ block: "nearest", behavior: "smooth" });
+      }
+      sendResponse({ ok: true });
     } else if (message.type === "food-outline:status") {
       sendResponse({
         ok: true,

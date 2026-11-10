@@ -348,6 +348,67 @@
   line-height: 1.35;
 }
 
+.fo-ingredients {
+  color: #aeb5c0;
+  font-size: 11px;
+}
+
+.fo-ingredients summary {
+  cursor: pointer;
+  color: #ffb86b;
+  font-weight: 600;
+}
+
+.fo-ing-actions {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin-top: 6px;
+}
+
+.fo-ing-actions button,
+.fo-file {
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 7px;
+  padding: 5px 7px;
+  background: rgba(255, 255, 255, 0.06);
+  color: #e7eaf0;
+  font: 600 10.5px/1 system-ui, sans-serif;
+  cursor: pointer;
+}
+
+.fo-ing-actions button:hover,
+.fo-file:hover {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.fo-file {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  overflow: hidden;
+}
+
+.fo-file input {
+  display: none;
+}
+
+.fo-ing-result {
+  margin-top: 6px;
+  padding: 6px 8px;
+  border-radius: 7px;
+  background: rgba(255, 255, 255, 0.04);
+  color: #d8dde5;
+  line-height: 1.45;
+  min-height: 22px;
+  word-break: break-word;
+}
+
+.fo-ingredients > .fo-link {
+  margin-top: 4px;
+  padding: 2px 0;
+}
+
 @media (max-width: 420px) {
   .fo-panel {
     width: calc(100vw - 20px);
