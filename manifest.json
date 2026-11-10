@@ -1,9 +1,9 @@
 {
   "manifest_version": 2,
   "name": "Food Outline Progress",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Progress tracker and range helper for food annotation tasks.",
-  "permissions": ["storage", "tabs", "activeTab"],
+  "permissions": ["storage", "tabs", "activeTab", "<all_urls>"],
   "browser_action": {
     "default_title": "Food Outline Progress",
     "default_popup": "src/popup.html",

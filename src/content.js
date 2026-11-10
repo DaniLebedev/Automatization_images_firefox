@@ -622,6 +622,11 @@
     if (!message || typeof message.type !== "string") {
       return undefined;
     }
+    const ready = Boolean(shadow && panel && state);
+    if (!ready && message.type !== "food-outline:status") {
+      sendResponse({ ok: false, error: "ui-not-ready" });
+      return undefined;
+    }
     if (message.type === "food-outline:open") {
       togglePanel(true);
       sendResponse({ ok: true });

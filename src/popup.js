@@ -21,20 +21,48 @@
     elements.status.style.color = isError ? "#ff9b9b" : "";
   }
 
+  function sleep(ms) {
+    return new Promise((resolve) => setTimeout(resolve, ms));
+  }
+
   async function activeTab() {
     const tabs = await api.tabs.query({ active: true, currentWindow: true });
     return tabs[0] || null;
+  }
+
+  async function sendRaw(tabId, type) {
+    try {
+      return await api.tabs.sendMessage(tabId, { type });
+    } catch (_error) {
+      return null;
+    }
+  }
+
+  async function ensureContentScript(tabId) {
+    const existing = await sendRaw(tabId, "food-outline:status");
+    if (existing && existing.ok) {
+      return existing;
+    }
+    try {
+      await api.tabs.executeScript(tabId, {
+        code: "try { delete globalThis.__foodOutlineHudLoaded; } catch (e) {}",
+      });
+      await api.tabs.executeScript(tabId, { file: "src/lib.js" });
+      await api.tabs.executeScript(tabId, { file: "src/content.js" });
+      await sleep(400);
+      return await sendRaw(tabId, "food-outline:status");
+    } catch (error) {
+      console.error("Food Outline injection failed", error);
+      return null;
+    }
   }
 
   async function send(type) {
     if (!tab) {
       return null;
     }
-    try {
-      return await api.tabs.sendMessage(tab.id, { type });
-    } catch (_error) {
-      return null;
-    }
+    await ensureContentScript(tab.id);
+    return sendRaw(tab.id, type);
   }
 
   function renderStatus(response) {
@@ -71,7 +99,8 @@
       setStatus("Нет активной вкладки", true);
       return;
     }
-    renderStatus(await send("food-outline:status"));
+    const response = await ensureContentScript(tab.id);
+    renderStatus(response);
   }
 
   elements.open.addEventListener("click", async () => {
