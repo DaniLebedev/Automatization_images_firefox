@@ -226,10 +226,10 @@
     const path = url.pathname.toLowerCase();
     return (
       host.includes("cvat") ||
-      path.includes("/tasks") ||
-      path.includes("/jobs") ||
-      path.includes("/task/") ||
-      path.includes("/job/") ||
+      /\/tasks\/\d+/.test(path) ||
+      /\/jobs\/\d+/.test(path) ||
+      /\/task\/\d+/.test(path) ||
+      /\/job\/\d+/.test(path) ||
       /[?&#]frame=/i.test(rawUrl) ||
       path.includes("/demo")
     );
