@@ -668,6 +668,7 @@
     await loadSettings();
     await loadState();
     syncCurrentId();
+    console.info("Food Outline", HUD_VERSION, location.href, "id=", currentId);
     const shouldShow =
       L.isCvatLike(location.href) ||
       Boolean(
@@ -677,6 +678,7 @@
       ) ||
       state.panelOpen;
     if (!shouldShow) {
+      console.info("Food Outline: page not recognized, HUD not created");
       return;
     }
     if (settings.autoOpen && L.isCvatLike(location.href) && !state.panelOpen) {
@@ -684,6 +686,7 @@
     }
     const css = await loadCss();
     buildUi(css);
+    console.info("Food Outline HUD created");
     window.addEventListener("keydown", onKeyDown, true);
     window.addEventListener("popstate", syncFromUrl);
     window.addEventListener("hashchange", syncFromUrl);

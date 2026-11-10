@@ -9,8 +9,8 @@
     try {
       await api.tabs.executeScript(tabId, { file: "src/lib.js" });
       await api.tabs.executeScript(tabId, { file: "src/content.js" });
-    } catch (_error) {
-      // Tab may be a browser page or inaccessible; ignore.
+    } catch (error) {
+      console.warn("Food Outline injection failed", tabId, error);
     }
   }
 
