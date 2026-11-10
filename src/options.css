@@ -125,7 +125,8 @@ button.danger {
   font-size: 12px;
 }
 
-.field input {
+.field input,
+.field select {
   width: 100%;
   padding: 8px 9px;
   border: 1px solid rgba(255, 255, 255, 0.14);
@@ -136,8 +137,13 @@ button.danger {
   outline: none;
 }
 
-.field input:focus {
+.field input:focus,
+.field select:focus {
   border-color: #ff9f43;
+}
+
+.status-error {
+  color: #ff9b9b;
 }
 
 code {

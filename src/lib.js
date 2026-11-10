@@ -34,6 +34,96 @@
   const FRAME_INPUT_XPATH =
     "/html/body/div[1]/div/main/div/header/div/div[2]/div/div[3]/div/div[2]/input";
 
+  const AI_PROVIDERS = {
+    gemini: {
+      label: "Google Gemini",
+      cloud: true,
+      baseUrl: "https://generativelanguage.googleapis.com/v1beta/openai",
+      model: "gemini-2.5-flash",
+    },
+    groq: {
+      label: "Groq",
+      cloud: true,
+      baseUrl: "https://api.groq.com/openai/v1",
+      model: "meta-llama/llama-4-scout-17b-16e-instruct",
+    },
+    openrouter: {
+      label: "OpenRouter",
+      cloud: true,
+      baseUrl: "https://openrouter.ai/api/v1",
+      model: "openrouter/free",
+    },
+    zai: {
+      label: "Z.AI GLM",
+      cloud: true,
+      baseUrl: "https://api.z.ai/api/paas/v4",
+      model: "glm-4.6v-flash",
+    },
+    lmstudio: {
+      label: "LM Studio",
+      cloud: false,
+      baseUrl: "http://localhost:1234/v1",
+      model: "",
+    },
+  };
+
+  const AI_ALIASES = {
+    google: "gemini",
+    "google-gemini": "gemini",
+    zhipu: "zai",
+    "z.ai": "zai",
+    local: "lmstudio",
+  };
+
+  function resolveAiConfig(settings, localConfig) {
+    const safeSettings = settings || {};
+    const safeLocal = localConfig || {};
+    const explicitProvider = String(safeSettings.aiProvider || "")
+      .trim()
+      .toLowerCase();
+    const fromSettings = Boolean(explicitProvider && explicitProvider !== "auto");
+    let requested = explicitProvider;
+    const configProvider = String(safeLocal.provider || "")
+      .trim()
+      .toLowerCase();
+    if (!requested || requested === "auto") {
+      requested = configProvider;
+    }
+    if (!requested) {
+      requested = safeLocal.apiKey ? "gemini" : "lmstudio";
+    }
+    const name = AI_ALIASES[requested] || requested;
+    const provider = AI_PROVIDERS[name];
+    if (!provider) {
+      return { error: `unknown AI provider: ${requested}`, provider: name };
+    }
+    const local = name === "lmstudio";
+    const normalizedConfigProvider = AI_ALIASES[configProvider] || configProvider;
+    const localModel =
+      !fromSettings || normalizedConfigProvider === name ? safeLocal.model : "";
+    const baseUrl = local
+      ? safeSettings.lmStudioUrl || safeLocal.baseUrl || provider.baseUrl
+      : safeLocal.baseUrl || provider.baseUrl;
+    const model = local
+      ? safeSettings.lmStudioModel || safeLocal.model || provider.model
+      : safeSettings.aiModel || localModel || provider.model;
+    const apiKey = String(safeLocal.apiKey || "").trim();
+    return {
+      provider: name,
+      label: provider.label,
+      cloud: provider.cloud,
+      baseUrl: String(baseUrl || "").replace(/\/+$/, ""),
+      model: String(model || "").trim(),
+      apiKey,
+      hasKey: Boolean(apiKey),
+      source: apiKey
+        ? "config.local.json"
+        : local
+          ? "LM Studio"
+          : "API key missing",
+    };
+  }
+
   function findFrameInput(doc) {
     if (!doc || typeof doc.querySelector !== "function") {
       return null;
@@ -287,6 +377,7 @@
   }
 
   return {
+    AI_PROVIDERS,
     ID_PARAMS,
     buildReport,
     completedIds,
@@ -299,5 +390,6 @@
     normalizeRange,
     parseIdFromDocument,
     parseIdFromUrl,
+    resolveAiConfig,
   };
 });

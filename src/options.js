@@ -14,6 +14,10 @@
   const clearButton = document.getElementById("clear");
   const importInput = document.getElementById("import");
   const message = document.getElementById("message");
+  const aiProvider = document.getElementById("ai-provider");
+  const aiModel = document.getElementById("ai-model");
+  const aiStatus = document.getElementById("ai-status");
+  const aiCheck = document.getElementById("ai-check");
   const lmUrl = document.getElementById("lm-url");
   const lmModel = document.getElementById("lm-model");
 
@@ -21,6 +25,8 @@
     autoOpen: true,
     autoNext: true,
     showLauncher: true,
+    aiProvider: "auto",
+    aiModel: "",
     lmStudioUrl: "http://localhost:1234/v1",
     lmStudioModel: "",
   };
@@ -41,10 +47,13 @@
     autoOpen.checked = Boolean(settings.autoOpen);
     autoNext.checked = Boolean(settings.autoNext);
     showLauncher.checked = Boolean(settings.showLauncher);
+    aiProvider.value = settings.aiProvider || "auto";
+    aiModel.value = settings.aiModel || "";
     lmUrl.value = settings.lmStudioUrl || "http://localhost:1234/v1";
     lmModel.value = settings.lmStudioModel || "";
     const keys = Object.keys(data).filter((key) => key.startsWith(STATE_PREFIX));
     scopeCount.textContent = `Сохранено диапазонов: ${keys.length}`;
+    checkAiConfig(false);
   }
 
   async function saveSettings() {
@@ -52,11 +61,46 @@
       autoOpen: autoOpen.checked,
       autoNext: autoNext.checked,
       showLauncher: showLauncher.checked,
+      aiProvider: aiProvider.value,
+      aiModel: aiModel.value.trim(),
       lmStudioUrl: lmUrl.value.trim() || "http://localhost:1234/v1",
       lmStudioModel: lmModel.value.trim(),
     };
     await storage.set({ [SETTINGS_KEY]: settings });
     showMessage("Настройки сохранены");
+  }
+
+  async function checkAiConfig(showToast) {
+    aiStatus.classList.remove("status-error");
+    aiStatus.textContent = "Проверяю config.local.json…";
+    try {
+      const response = await api.runtime.sendMessage({
+        type: "food-outline:ai-status",
+      });
+      if (!response || !response.ok) {
+        throw new Error(
+          response && response.error ? response.error : "нет ответа"
+        );
+      }
+      if (response.cloud && !response.hasKey) {
+        aiStatus.classList.add("status-error");
+        aiStatus.textContent =
+          "Ключ не найден. Создайте config.local.json из config.example.json и вставьте apiKey.";
+      } else {
+        aiStatus.textContent = `${response.label}: ${response.model || "auto"}` +
+          ` · ключ ${response.hasKey ? "найден" : "не требуется"}` +
+          ` · ${response.source}`;
+      }
+      if (showToast) {
+        showMessage("Конфигурация AI проверена");
+      }
+    } catch (error) {
+      aiStatus.classList.add("status-error");
+      aiStatus.textContent = `Ошибка AI: ${error.message || error}`;
+      if (showToast) {
+        showMessage("Не удалось проверить AI", true);
+      }
+    }
   }
 
   async function exportAll() {
@@ -139,6 +183,15 @@
   autoOpen.addEventListener("change", saveSettings);
   autoNext.addEventListener("change", saveSettings);
   showLauncher.addEventListener("change", saveSettings);
+  aiProvider.addEventListener("change", async () => {
+    await saveSettings();
+    await checkAiConfig(true);
+  });
+  aiModel.addEventListener("change", async () => {
+    await saveSettings();
+    await checkAiConfig(false);
+  });
+  aiCheck.addEventListener("click", () => checkAiConfig(true));
   lmUrl.addEventListener("change", saveSettings);
   lmModel.addEventListener("change", saveSettings);
   exportButton.addEventListener("click", exportAll);

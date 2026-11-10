@@ -1,7 +1,7 @@
 (function () {
   "use strict";
 
-  const HUD_VERSION = "0.1.6";
+  const HUD_VERSION = "0.1.7";
   const L = globalThis.FoodOutlineLib;
   if (!L) {
     return;
@@ -523,16 +523,40 @@
     return null;
   }
 
+  async function resizeDataUrl(dataUrl, maxSide = 1280) {
+    try {
+      const image = new Image();
+      image.src = dataUrl;
+      await image.decode();
+      const width = image.naturalWidth;
+      const height = image.naturalHeight;
+      const largest = Math.max(width, height);
+      if (!width || !height || largest <= maxSide) {
+        return dataUrl;
+      }
+      const scale = maxSide / largest;
+      const canvas = document.createElement("canvas");
+      canvas.width = Math.max(1, Math.round(width * scale));
+      canvas.height = Math.max(1, Math.round(height * scale));
+      const context = canvas.getContext("2d");
+      context.drawImage(image, 0, 0, canvas.width, canvas.height);
+      return canvas.toDataURL("image/jpeg", 0.85);
+    } catch (_error) {
+      return dataUrl;
+    }
+  }
+
   async function analyzeImage(dataUrl) {
     const result = getEl("ingredients");
     if (result) {
-      result.textContent = "Анализирую через LM Studio…";
+      result.textContent = "Анализирую через AI…";
     }
     state.ingredients = [];
     try {
+      const prepared = await resizeDataUrl(dataUrl);
       const response = await api.runtime.sendMessage({
         type: "food-outline:analyze",
-        image: dataUrl,
+        image: prepared,
       });
       if (!response || !response.ok) {
         throw new Error(response && response.error ? response.error : "нет ответа");
@@ -542,10 +566,13 @@
         : [];
       saveState();
       render();
+      const engine = [response.label || response.provider, response.model]
+        .filter(Boolean)
+        .join(" / ");
       showMessage(
         state.ingredients.length > 0
-          ? `Найдено ингредиентов: ${state.ingredients.length}`
-          : "Ингредиенты не распознаны"
+          ? `Найдено ингредиентов: ${state.ingredients.length}${engine ? ` · ${engine}` : ""}`
+          : `Ингредиенты не распознаны${engine ? ` · ${engine}` : ""}`
       );
     } catch (error) {
       render();

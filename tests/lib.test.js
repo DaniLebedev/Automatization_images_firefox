@@ -90,3 +90,49 @@ test("buildReport includes completed ids", () => {
   assert.deepEqual(report.completedIds, [1, 3]);
   assert.equal(report.percent, 67);
 });
+
+test("resolveAiConfig prefers an explicit provider from settings", () => {
+  const config = L.resolveAiConfig(
+    { aiProvider: "groq", aiModel: "" },
+    { provider: "gemini", apiKey: "secret", model: "gemini-2.5-flash" }
+  );
+  assert.equal(config.provider, "groq");
+  assert.equal(config.model, "meta-llama/llama-4-scout-17b-16e-instruct");
+  assert.equal(config.baseUrl, "https://api.groq.com/openai/v1");
+  assert.equal(config.hasKey, true);
+  assert.equal(config.cloud, true);
+});
+
+test("resolveAiConfig uses the config file in auto mode", () => {
+  const config = L.resolveAiConfig(
+    { aiProvider: "auto" },
+    { provider: "openrouter", apiKey: "secret", model: "openrouter/free" }
+  );
+  assert.equal(config.provider, "openrouter");
+  assert.equal(config.model, "openrouter/free");
+  assert.equal(config.baseUrl, "https://openrouter.ai/api/v1");
+  assert.equal(config.source, "config.local.json");
+});
+
+test("resolveAiConfig defaults to Gemini when only a key is present", () => {
+  const config = L.resolveAiConfig({}, { apiKey: "secret" });
+  assert.equal(config.provider, "gemini");
+  assert.equal(config.hasKey, true);
+  assert.equal(config.model, "gemini-2.5-flash");
+});
+
+test("resolveAiConfig falls back to LM Studio without a key", () => {
+  const config = L.resolveAiConfig(
+    { lmStudioUrl: "http://localhost:1234/v1", lmStudioModel: "qwen/qwen2.5-vl-7b" },
+    {}
+  );
+  assert.equal(config.provider, "lmstudio");
+  assert.equal(config.cloud, false);
+  assert.equal(config.hasKey, false);
+  assert.equal(config.model, "qwen/qwen2.5-vl-7b");
+});
+
+test("resolveAiConfig reports unknown providers", () => {
+  const config = L.resolveAiConfig({ aiProvider: "nope" }, {});
+  assert.match(config.error, /unknown AI provider/);
+});

@@ -42,10 +42,37 @@
       </section>
 
       <section class="card">
-        <h2>LM Studio</h2>
+        <h2>AI для ингредиентов</h2>
         <p class="muted">
-          Нужна vision-модель, например <code>qwen/qwen2.5-vl-7b</code>.
-          Анализ ингредиентов идёт через локальный LM Studio.
+          Ключ читается из <code>config.local.json</code> и не попадает в git.
+          Скопируйте <code>config.example.json</code> в <code>config.local.json</code>
+          и вставьте ключ.
+        </p>
+        <label class="field">
+          <span>Провайдер</span>
+          <select id="ai-provider">
+            <option value="auto">Auto (из config.local.json)</option>
+            <option value="gemini">Google Gemini — бесплатно</option>
+            <option value="groq">Groq — бесплатно и быстро</option>
+            <option value="openrouter">OpenRouter — бесплатные модели</option>
+            <option value="zai">Z.AI GLM — бесплатно</option>
+            <option value="lmstudio">LM Studio — локально</option>
+          </select>
+        </label>
+        <label class="field">
+          <span>Модель</span>
+          <input id="ai-model" type="text" placeholder="auto (модель провайдера)" />
+        </label>
+        <p id="ai-status" class="muted">Проверяю config.local.json…</p>
+        <button id="ai-check" type="button">Проверить конфигурацию</button>
+      </section>
+
+      <section class="card">
+        <h2>Локальный LM Studio</h2>
+        <p class="muted">
+          Используется, если выбран провайдер LM Studio или если в
+          <code>config.local.json</code> нет ключа и провайдер не задан. Нужна
+          vision-модель, например <code>qwen/qwen2.5-vl-7b</code>.
         </p>
         <label class="field">
           <span>URL</span>
