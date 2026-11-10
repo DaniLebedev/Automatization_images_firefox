@@ -1,0 +1,152 @@
+:root {
+  color-scheme: dark;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  width: 320px;
+  background: #15171c;
+  color: #eef0f4;
+}
+
+.popup {
+  padding: 12px;
+  display: grid;
+  gap: 9px;
+}
+
+.popup-head {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+
+.popup-logo {
+  font-size: 24px;
+}
+
+h1 {
+  margin: 0;
+  font-size: 15px;
+  letter-spacing: 0.2px;
+}
+
+.popup-head p {
+  margin: 1px 0 0;
+  color: #8b93a0;
+  font-size: 11px;
+}
+
+.card {
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.035);
+  padding: 9px 10px;
+  display: grid;
+  gap: 5px;
+}
+
+.row {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  color: #9ca4b0;
+  font-size: 11.5px;
+}
+
+.row b {
+  color: #ffb86b;
+  font-variant-numeric: tabular-nums;
+}
+
+.bar {
+  height: 6px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.09);
+  overflow: hidden;
+}
+
+.bar i {
+  display: block;
+  width: 0;
+  height: 100%;
+  background: linear-gradient(90deg, #ff9f43, #ffce7a);
+  transition: width 180ms ease;
+}
+
+.status {
+  margin: 0;
+  color: #8b93a0;
+  font-size: 10.5px;
+  line-height: 1.35;
+}
+
+.actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 7px;
+}
+
+button {
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 8px;
+  padding: 8px 9px;
+  background: rgba(255, 255, 255, 0.06);
+  color: #eef0f4;
+  font: 650 11.5px/1 system-ui, sans-serif;
+  cursor: pointer;
+}
+
+button:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+button.primary {
+  background: linear-gradient(145deg, #ff9f43, #e57423);
+  border: 0;
+  color: #201406;
+}
+
+button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.actions .primary {
+  grid-column: 1 / -1;
+}
+
+.hint {
+  color: #8b93a0;
+  font-size: 10.5px;
+}
+
+.hint p {
+  margin: 0;
+}
+
+kbd {
+  padding: 1px 4px;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.08);
+  font: 10px/1.2 ui-monospace, monospace;
+}
+
+button.link {
+  border: 0;
+  padding: 0;
+  background: none;
+  color: #ffb86b;
+  text-align: left;
+  font-size: 11px;
+}
+
+button.link:hover {
+  text-decoration: underline;
+  background: none;
+}

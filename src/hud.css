@@ -1,0 +1,359 @@
+:host {
+  all: initial;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+.fo-launcher {
+  position: fixed;
+  right: 18px;
+  bottom: 18px;
+  width: 44px;
+  height: 44px;
+  border: 0;
+  border-radius: 50%;
+  background: linear-gradient(145deg, #ff9f43, #e06b1f);
+  color: #1b1207;
+  font: 800 14px/1 system-ui, -apple-system, "Segoe UI", sans-serif;
+  letter-spacing: 0.5px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+  cursor: pointer;
+  display: none;
+  z-index: 2147483646;
+}
+
+.fo-launcher.is-visible {
+  display: block;
+}
+
+.fo-launcher:hover {
+  filter: brightness(1.08);
+}
+
+.fo-panel {
+  position: fixed;
+  right: 18px;
+  bottom: 18px;
+  width: 306px;
+  max-width: calc(100vw - 24px);
+  background: rgba(20, 22, 27, 0.96);
+  color: #f4f5f7;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 14px;
+  box-shadow: 0 18px 48px rgba(0, 0, 0, 0.45);
+  font: 13px/1.35 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  overflow: hidden;
+  backdrop-filter: blur(12px);
+  z-index: 2147483647;
+}
+
+.fo-panel.is-hidden {
+  display: none;
+}
+
+.fo-panel.is-dragging {
+  user-select: none;
+}
+
+.fo-head {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 10px 10px 9px 12px;
+  background: linear-gradient(120deg, rgba(255, 159, 67, 0.16), rgba(255, 255, 255, 0.03));
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  cursor: grab;
+}
+
+.fo-logo {
+  font-size: 15px;
+}
+
+.fo-title {
+  font-weight: 700;
+  font-size: 13px;
+  letter-spacing: 0.2px;
+}
+
+.fo-current {
+  margin-left: auto;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: rgba(255, 159, 67, 0.18);
+  color: #ffb86b;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.fo-current.is-outside {
+  background: rgba(255, 87, 87, 0.18);
+  color: #ff8c8c;
+}
+
+.fo-icon {
+  width: 24px;
+  height: 24px;
+  border: 0;
+  border-radius: 7px;
+  background: rgba(255, 255, 255, 0.06);
+  color: #cfd3da;
+  font: 700 15px/1 system-ui, sans-serif;
+  cursor: pointer;
+}
+
+.fo-icon:hover {
+  background: rgba(255, 255, 255, 0.12);
+  color: #fff;
+}
+
+.fo-body {
+  padding: 10px 12px 11px;
+  display: grid;
+  gap: 9px;
+}
+
+.fo-panel.is-collapsed .fo-body {
+  display: none;
+}
+
+.fo-range {
+  display: grid;
+  grid-template-columns: 1fr 1fr auto;
+  gap: 7px;
+  align-items: end;
+}
+
+.fo-range label {
+  display: grid;
+  gap: 3px;
+  color: #9aa1ad;
+  font-size: 11px;
+}
+
+.fo-range input {
+  width: 100%;
+  min-width: 0;
+  padding: 6px 8px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.06);
+  color: #f7f8fa;
+  font: 600 13px/1.2 system-ui, sans-serif;
+  outline: none;
+}
+
+.fo-range input:focus {
+  border-color: #ff9f43;
+  box-shadow: 0 0 0 2px rgba(255, 159, 67, 0.18);
+}
+
+.fo-primary {
+  border: 0;
+  border-radius: 8px;
+  padding: 7px 11px;
+  background: linear-gradient(145deg, #ff9f43, #e57423);
+  color: #201406;
+  font: 800 12px/1 system-ui, sans-serif;
+  cursor: pointer;
+}
+
+.fo-primary:disabled,
+.fo-panel button:disabled {
+  opacity: 0.38;
+  cursor: not-allowed;
+  filter: none;
+}
+
+.fo-primary:hover:not(:disabled) {
+  filter: brightness(1.07);
+}
+
+.fo-range-summary {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  color: #8d95a1;
+  font-size: 11px;
+  overflow: hidden;
+}
+
+.fo-range-summary span {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.fo-range-summary b {
+  color: #ffb86b;
+  font-weight: 700;
+}
+
+.fo-progress {
+  display: grid;
+  gap: 5px;
+}
+
+.fo-bar {
+  height: 7px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.09);
+  overflow: hidden;
+}
+
+.fo-bar i {
+  display: block;
+  height: 100%;
+  width: 0%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #ff9f43, #ffce7a);
+  transition: width 180ms ease;
+}
+
+.fo-progress span {
+  color: #c9ced6;
+  font-size: 11px;
+}
+
+.fo-stats {
+  display: flex;
+  justify-content: space-between;
+  gap: 6px;
+  color: #a4abb6;
+  font-size: 11px;
+}
+
+.fo-stats b {
+  color: #f2f4f7;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.fo-stats-muted {
+  color: #7e8794;
+  font-size: 10.5px;
+}
+
+.fo-actions {
+  display: grid;
+  grid-template-columns: 1.35fr 1fr 0.9fr 0.9fr;
+  gap: 6px;
+}
+
+.fo-actions button {
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 8px;
+  padding: 7px 6px;
+  background: rgba(255, 255, 255, 0.06);
+  color: #e7eaf0;
+  font: 650 11.5px/1 system-ui, sans-serif;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.fo-actions button:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.fo-actions .fo-primary {
+  background: linear-gradient(145deg, #ff9f43, #e57423);
+  color: #201406;
+  border: 0;
+}
+
+.fo-footer {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  color: #9aa1ad;
+  font-size: 11px;
+}
+
+.fo-check {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+}
+
+.fo-check input {
+  accent-color: #ff9f43;
+}
+
+.fo-link {
+  margin-left: auto;
+  border: 0;
+  background: none;
+  color: #ffb86b;
+  font: 600 11px/1 system-ui, sans-serif;
+  cursor: pointer;
+  padding: 2px;
+}
+
+.fo-link.fo-danger {
+  color: #ff8c8c;
+  margin-left: 0;
+}
+
+.fo-link:hover {
+  text-decoration: underline;
+}
+
+.fo-details {
+  color: #8f97a3;
+  font-size: 11px;
+}
+
+.fo-details summary {
+  cursor: pointer;
+  color: #aeb5c0;
+}
+
+.fo-details div {
+  max-height: 70px;
+  overflow: auto;
+  margin-top: 4px;
+  padding: 6px 7px;
+  border-radius: 7px;
+  background: rgba(255, 255, 255, 0.04);
+  color: #c3c9d2;
+  font-variant-numeric: tabular-nums;
+  word-break: break-word;
+}
+
+.fo-message {
+  display: none;
+  padding: 6px 8px;
+  border-radius: 8px;
+  background: rgba(88, 190, 120, 0.14);
+  color: #8fe0a7;
+  font-size: 11px;
+}
+
+.fo-message.is-visible {
+  display: block;
+}
+
+.fo-message.is-error {
+  background: rgba(255, 87, 87, 0.14);
+  color: #ff9b9b;
+}
+
+.fo-hint {
+  color: #6f7783;
+  font-size: 10px;
+  line-height: 1.35;
+}
+
+@media (max-width: 420px) {
+  .fo-panel {
+    width: calc(100vw - 20px);
+    right: 10px;
+    bottom: 10px;
+  }
+
+  .fo-actions {
+    grid-template-columns: 1.2fr 1fr;
+  }
+}

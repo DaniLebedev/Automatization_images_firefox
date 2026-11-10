@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Food Outline Progress — настройки</title>
+    <link rel="stylesheet" href="options.css" />
+  </head>
+  <body>
+    <main class="page">
+      <header>
+        <span class="logo">🍟</span>
+        <div>
+          <h1>Food Outline Progress</h1>
+          <p>Настройки, экспорт и импорт прогресса</p>
+        </div>
+      </header>
+
+      <section class="card">
+        <h2>Поведение</h2>
+        <label class="check">
+          <input type="checkbox" id="auto-open" />
+          <span>
+            <b>Автоматически открывать панель на CVAT</b>
+            <small>Панель появится при загрузке страницы задачи или job.</small>
+          </span>
+        </label>
+        <label class="check">
+          <input type="checkbox" id="auto-next" />
+          <span>
+            <b>Автоматически переходить к следующей карточке</b>
+            <small>После нажатия «Готово» открывается следующий неотмеченный ID.</small>
+          </span>
+        </label>
+        <label class="check">
+          <input type="checkbox" id="show-launcher" />
+          <span>
+            <b>Показывать кнопку FO на странице</b>
+            <small>Маленькая кнопка в правом нижнем углу, если панель закрыта.</small>
+          </span>
+        </label>
+      </section>
+
+      <section class="card">
+        <h2>Данные</h2>
+        <p id="scope-count" class="muted">Загружаю…</p>
+        <div class="actions">
+          <button id="export" type="button">Экспортировать всё</button>
+          <button id="clear" type="button" class="danger">Очистить всё</button>
+        </div>
+        <label class="file">
+          <span>Импортировать JSON</span>
+          <input id="import" type="file" accept="application/json,.json" />
+        </label>
+      </section>
+
+      <section class="card">
+        <h2>Горячие клавиши</h2>
+        <ul class="keys">
+          <li><kbd>Alt</kbd>+<kbd>Shift</kbd>+<kbd>D</kbd> — отметить текущую карточку</li>
+          <li><kbd>Alt</kbd>+<kbd>Shift</kbd>+<kbd>U</kbd> — снять отметку</li>
+          <li><kbd>Alt</kbd>+<kbd>Shift</kbd>+<kbd>N</kbd> — следующая неотмеченная</li>
+          <li><kbd>Alt</kbd>+<kbd>Shift</kbd>+<kbd>P</kbd> — открыть/закрыть панель</li>
+        </ul>
+      </section>
+
+      <p id="message" class="message"></p>
+    </main>
+    <script src="options.js"></script>
+  </body>
+</html>

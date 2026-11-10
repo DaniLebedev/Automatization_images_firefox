@@ -1,0 +1,172 @@
+:root {
+  color-scheme: dark;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: #101216;
+  color: #eef0f4;
+}
+
+.page {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 28px 18px 48px;
+  display: grid;
+  gap: 14px;
+}
+
+header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 6px;
+}
+
+.logo {
+  font-size: 34px;
+}
+
+h1 {
+  margin: 0;
+  font-size: 20px;
+}
+
+header p {
+  margin: 3px 0 0;
+  color: #8b93a0;
+  font-size: 12px;
+}
+
+.card {
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 14px;
+  background: #181b21;
+  padding: 16px;
+  display: grid;
+  gap: 13px;
+}
+
+h2 {
+  margin: 0;
+  font-size: 14px;
+  color: #ffb86b;
+}
+
+.check {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  cursor: pointer;
+}
+
+.check input {
+  margin-top: 2px;
+  accent-color: #ff9f43;
+  width: 16px;
+  height: 16px;
+}
+
+.check span {
+  display: grid;
+  gap: 3px;
+}
+
+.check b {
+  font-size: 13px;
+}
+
+.check small {
+  color: #8b93a0;
+  font-size: 11px;
+  line-height: 1.35;
+}
+
+.actions {
+  display: flex;
+  gap: 9px;
+  flex-wrap: wrap;
+}
+
+button {
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 9px;
+  padding: 9px 13px;
+  background: rgba(255, 255, 255, 0.07);
+  color: #eef0f4;
+  font: 650 12px/1 system-ui, sans-serif;
+  cursor: pointer;
+}
+
+button:hover {
+  background: rgba(255, 255, 255, 0.13);
+}
+
+button.danger {
+  color: #ff9b9b;
+  border-color: rgba(255, 87, 87, 0.35);
+}
+
+.muted {
+  margin: 0;
+  color: #8b93a0;
+  font-size: 12px;
+}
+
+.file {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 12px;
+  border: 1px dashed rgba(255, 255, 255, 0.18);
+  border-radius: 9px;
+  color: #aeb5c0;
+  font-size: 12px;
+}
+
+.file input {
+  color: #8b93a0;
+  font-size: 11px;
+  max-width: 260px;
+}
+
+.keys {
+  margin: 0;
+  padding-left: 18px;
+  color: #aeb5c0;
+  font-size: 12px;
+  display: grid;
+  gap: 5px;
+}
+
+kbd {
+  padding: 1px 5px;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.09);
+  font: 11px/1.2 ui-monospace, monospace;
+}
+
+.message {
+  display: none;
+  margin: 0;
+  padding: 9px 12px;
+  border-radius: 9px;
+  background: rgba(88, 190, 120, 0.14);
+  color: #8fe0a7;
+  font-size: 12px;
+}
+
+.message.is-visible {
+  display: block;
+}
+
+.message.is-error {
+  background: rgba(255, 87, 87, 0.14);
+  color: #ff9b9b;
+}
