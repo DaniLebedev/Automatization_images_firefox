@@ -1,6 +1,6 @@
 {
   "name": "food-outline-progress",
-  "version": "0.1.7",
+  "version": "0.1.8",
   "private": true,
   "description": "Firefox progress tracker for food annotation tasks",
   "scripts": {

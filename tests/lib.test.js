@@ -118,7 +118,7 @@ test("resolveAiConfig defaults to Gemini when only a key is present", () => {
   const config = L.resolveAiConfig({}, { apiKey: "secret" });
   assert.equal(config.provider, "gemini");
   assert.equal(config.hasKey, true);
-  assert.equal(config.model, "gemini-2.5-flash");
+  assert.equal(config.model, "gemini-3.8-flash");
 });
 
 test("resolveAiConfig falls back to LM Studio without a key", () => {

@@ -1,6 +1,6 @@
 {
   "provider": "gemini",
   "apiKey": "",
-  "model": "",
+  "model": "gemini-3.8-flash",
   "baseUrl": ""
 }

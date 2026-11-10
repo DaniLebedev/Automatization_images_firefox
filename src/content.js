@@ -1,7 +1,7 @@
 (function () {
   "use strict";
 
-  const HUD_VERSION = "0.1.7";
+  const HUD_VERSION = "0.1.8";
   const L = globalThis.FoodOutlineLib;
   if (!L) {
     return;

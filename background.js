@@ -3,7 +3,7 @@
 
   const api = typeof browser !== "undefined" ? browser : chrome;
   const CVAT_PATTERN = /\/(tasks|jobs|task|job)\/\d+/i;
-  const VERSION = "0.1.7";
+  const VERSION = "0.1.8";
   const SETTINGS_KEY = "fo:settings";
   const CONFIG_FILE = "config.local.json";
   const REQUEST_TIMEOUT_MS = 90_000;
