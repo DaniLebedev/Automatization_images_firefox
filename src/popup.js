@@ -9,6 +9,7 @@
     bar: document.getElementById("bar"),
     status: document.getElementById("status"),
     open: document.getElementById("open-panel"),
+    permission: document.getElementById("permission"),
     done: document.getElementById("done"),
     next: document.getElementById("next"),
     options: document.getElementById("options"),
@@ -19,6 +20,42 @@
   function setStatus(text, isError) {
     elements.status.textContent = text;
     elements.status.style.color = isError ? "#ff9b9b" : "";
+  }
+
+  function isHttpUrl(url) {
+    return typeof url === "string" && /^https?:\/\//i.test(url);
+  }
+
+  function isCvatUrl(url) {
+    if (typeof url !== "string") {
+      return false;
+    }
+    try {
+      const parsed = new URL(url);
+      return (
+        parsed.hostname.toLowerCase().includes("cvat") ||
+        /\/(tasks|jobs|task|job)\/\d+/i.test(parsed.pathname)
+      );
+    } catch (_error) {
+      return false;
+    }
+  }
+
+  async function hasSitePermission() {
+    if (!api.permissions || !api.permissions.contains) {
+      return true;
+    }
+    try {
+      return await api.permissions.contains({ origins: ["*://*/*"] });
+    } catch (_error) {
+      return true;
+    }
+  }
+
+  function setPanelButtonsEnabled(enabled) {
+    elements.open.disabled = !enabled;
+    elements.done.disabled = !enabled;
+    elements.next.disabled = !enabled;
   }
 
   function sleep(ms) {
@@ -76,10 +113,10 @@
           "Обновите страницу (F5) и проверьте разрешения расширения.",
         true
       );
-      elements.done.disabled = true;
-      elements.next.disabled = true;
+      setPanelButtonsEnabled(false);
       return;
     }
+    setPanelButtonsEnabled(true);
     const stats = response.stats || {};
     elements.current.textContent = response.currentId === null ? "—" : String(response.currentId);
     elements.range.textContent = response.hasRange
@@ -102,6 +139,34 @@
     tab = await activeTab();
     if (!tab) {
       setStatus("Нет активной вкладки", true);
+      setPanelButtonsEnabled(false);
+      return;
+    }
+    elements.permission.hidden = true;
+    if (!isHttpUrl(tab.url)) {
+      setStatus(
+        "Активна служебная вкладка (about:...). Переключитесь на вкладку CVAT и откройте popup снова.",
+        true
+      );
+      setPanelButtonsEnabled(false);
+      return;
+    }
+    if (!isCvatUrl(tab.url)) {
+      setStatus(
+        "Это не похоже на CVAT. Откройте задачу /tasks/<id>/jobs/<id> и нажмите иконку расширения на этой вкладке.",
+        true
+      );
+      setPanelButtonsEnabled(false);
+      return;
+    }
+    const allowed = await hasSitePermission();
+    if (!allowed) {
+      elements.permission.hidden = false;
+      setStatus(
+        "У расширения нет доступа к сайтам. Нажмите «Разрешить доступ к сайтам».",
+        true
+      );
+      setPanelButtonsEnabled(false);
       return;
     }
     const response = await ensureContentScript(tab.id);
@@ -139,6 +204,23 @@
       return;
     }
     await refresh();
+  });
+
+  elements.permission.addEventListener("click", async () => {
+    if (!api.permissions || !api.permissions.request) {
+      setStatus("API разрешений недоступен в этом Firefox.", true);
+      return;
+    }
+    try {
+      const granted = await api.permissions.request({ origins: ["*://*/*"] });
+      setStatus(
+        granted ? "Доступ к сайтам выдан" : "Доступ не выдан",
+        !granted
+      );
+      await refresh();
+    } catch (error) {
+      setStatus(`Не удалось запросить доступ: ${error.message || error}`, true);
+    }
   });
 
   elements.options.addEventListener("click", () => {

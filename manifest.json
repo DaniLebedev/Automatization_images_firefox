@@ -1,9 +1,11 @@
 {
   "manifest_version": 2,
   "name": "Food Outline Progress",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "Progress tracker and range helper for food annotation tasks.",
+  "incognito": "spanning",
   "permissions": ["storage", "tabs", "activeTab", "<all_urls>"],
+  "optional_permissions": ["*://*/*"],
   "background": {
     "scripts": ["background.js"],
     "persistent": false

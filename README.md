@@ -78,13 +78,21 @@ Popup теперь умеет сам внедрять content script в откр
 1. Убедитесь, что расширение загружено в **том же профиле Firefox**, где открыт
    CVAT.
 2. Нажмите `F5` на странице CVAT.
-3. Откройте `about:addons` → **Food Outline Progress** → «Разрешения» и
-   разрешите доступ к сайтам.
-4. Откройте Browser Console (`Ctrl+Shift+J`) и посмотрите ошибки расширения.
-5. Если страница открыта в другом окне/профиле — загрузите `manifest.json` там
-   через `about:debugging`.
+3. Если popup пишет **`Missing host permission for the tab`**:
+   - откройте popup именно на вкладке CVAT, а не на `about:debugging`;
+   - в popup должна быть кнопка **«Разрешить доступ к сайтам»** — нажмите её и
+     разрешите доступ;
+   - либо `about:addons` → **Food Outline Progress** → «Разрешения» → доступ к
+     сайтам.
+4. Откройте `about:debugging#/runtime/this-firefox` и проверьте, что версия
+   расширения **0.1.3**. Если нет — удалите старую и загрузите `manifest.json`
+   заново.
+5. Browser Console (`Ctrl+Shift+J`) — там будут строки `Food Outline ...` с
+   точной причиной.
 
-После изменения расширения в `about:debugging` нажмите **Reload**.
+`Missing host permission for the tab` почти всегда значит, что popup открыт на
+служебной вкладке (`about:...`) или Firefox не дал доступ к сайту. На вкладке
+CVAT нажмите иконку расширения ещё раз.
 
 ## Где хранится прогресс
 
