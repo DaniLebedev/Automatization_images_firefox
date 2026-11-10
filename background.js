@@ -3,7 +3,7 @@
 
   const api = typeof browser !== "undefined" ? browser : chrome;
   const CVAT_PATTERN = /\/(tasks|jobs|task|job)\/\d+/i;
-  const VERSION = "0.1.8";
+  const VERSION = "0.1.9";
   const SETTINGS_KEY = "fo:settings";
   const CONFIG_FILE = "config.local.json";
   const REQUEST_TIMEOUT_MS = 90_000;
@@ -246,6 +246,57 @@
     };
   }
 
+  async function testAi() {
+    const config = await readAiConfig();
+    if (config.cloud && !config.hasKey) {
+      throw new Error(`API-ключ не найден в ${CONFIG_FILE}`);
+    }
+    if (!config.model && config.provider !== "lmstudio") {
+      throw new Error(`Для ${config.label} не задана модель`);
+    }
+    const model =
+      config.provider === "lmstudio"
+        ? await resolveLmStudioModel(config)
+        : config.model;
+    const started = Date.now();
+    const payload = await requestJson(
+      `${config.baseUrl}/chat/completions`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          ...(config.cloud && config.apiKey
+            ? { Authorization: `Bearer ${config.apiKey}` }
+            : {}),
+        },
+        body: JSON.stringify({
+          model,
+          messages: [
+            {
+              role: "user",
+              content: "Reply with exactly one word: OK",
+            },
+          ],
+          temperature: 0,
+          max_tokens: 8,
+          stream: false,
+        }),
+      },
+      config.label
+    );
+    const choice = payload.choices && payload.choices[0];
+    const answer = choice && choice.message
+      ? messageText(choice.message.content).trim().slice(0, 80)
+      : "";
+    return {
+      provider: config.provider,
+      label: config.label,
+      model,
+      latencyMs: Date.now() - started,
+      answer,
+    };
+  }
+
   async function inject(tabId) {
     try {
       await api.tabs.executeScript(tabId, { file: "src/lib.js" });
@@ -297,6 +348,19 @@
       readAiConfig()
         .then((config) => {
           sendResponse({ ok: true, ...publicAiConfig(config) });
+        })
+        .catch((error) => {
+          sendResponse({
+            ok: false,
+            error: (error && error.message) || String(error),
+          });
+        });
+      return true;
+    }
+    if (message.type === "food-outline:ai-test") {
+      testAi()
+        .then((result) => {
+          sendResponse({ ok: true, ...result });
         })
         .catch((error) => {
           sendResponse({

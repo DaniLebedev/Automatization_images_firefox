@@ -87,7 +87,7 @@ Popup теперь умеет сам внедрять content script в откр
    - либо `about:addons` → **Food Outline Progress** → «Разрешения» → доступ к
      сайтам.
 4. Откройте `about:debugging#/runtime/this-firefox` и проверьте, что версия
-   расширения **0.1.8**. Если нет — удалите старую и загрузите `manifest.json`
+   расширения **0.1.9**. Если нет — удалите старую и загрузите `manifest.json`
    заново.
 5. Browser Console (`Ctrl+Shift+J`) — там будут строки `Food Outline ...` с
    точной причиной.
@@ -228,6 +228,46 @@ endpoint.
 Для всех облачных вариантов нужен ключ с доступом к vision-модели. Если API
 вернул `429`, это лимит бесплатного тарифа: подождите или переключите провайдера.
 
+### DeepSeek и другие варианты
+
+Официальный API DeepSeek — платный, отдельного бесплатного тарифа для API нет.
+Кроме того, публичные модели `deepseek-chat` и `deepseek-reasoner` текстовые:
+они не смотрят на фото. Для анализа ингредиентов по картинке DeepSeek API не
+подходит. Бесплатные vision-варианты — Gemini, Groq, OpenRouter и Z.AI GLM,
+они уже встроены.
+
+### Как проверить ключ и API
+
+В настройках расширения есть две кнопки:
+
+- **«Проверить конфигурацию»** — проверяет, что `config.local.json` читается,
+  ключ найден и выбран провайдер;
+- **«Проверить API»** — отправляет маленький текстовый запрос к выбранной модели
+  и показывает HTTP-статус, модель, задержку и ответ.
+
+Проверка из терминала, без браузера:
+
+```powershell
+cd "D:\Projects\Automatization_images_firefox"
+npm run check-ai
+npm run check-ai -- --image "D:\Projects\Automatization images\images\900.jpg"
+```
+
+Второй вариант проверяет именно vision-запрос по фотографии. Ключ не печатается.
+
+Если панель пишет:
+
+```text
+Could not establish connection. Receiving end does not exist.
+```
+
+это не ошибка ключа и не ошибка API. Это значит, что страница CVAT осталась со
+старым content script после перезагрузки расширения. Нужно:
+
+1. Перезагрузить расширение в `about:debugging`.
+2. Обязательно нажать **F5** на вкладке CVAT.
+3. Повторить анализ.
+
 ## Где хранится прогресс
 
 `browser.storage.local`, ключи `fo:state:<scope>`. Настройки — `fo:settings`.
@@ -237,6 +277,7 @@ endpoint.
 
 ```powershell
 npm test              # unit-тесты pure-логики
+npm run check-ai      # проверить API из config.local.json
 npm run lint          # web-ext lint
 npm run build         # XPI без config.local.json (можно делиться)
 npm run build:local   # XPI с ключом (только для себя, не публиковать)
@@ -253,6 +294,7 @@ src/hud.css       # стили панели
 src/popup.*       # popup
 src/options.*     # настройки и экспорт/импорт
 demo/             # локальная демо-задача
+scripts/check-ai.mjs  # проверка ключа и API из терминала
 tests/lib.test.js # Node tests
 ```
 

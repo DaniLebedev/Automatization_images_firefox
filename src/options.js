@@ -18,6 +18,7 @@
   const aiModel = document.getElementById("ai-model");
   const aiStatus = document.getElementById("ai-status");
   const aiCheck = document.getElementById("ai-check");
+  const aiTest = document.getElementById("ai-test");
   const lmUrl = document.getElementById("lm-url");
   const lmModel = document.getElementById("lm-model");
 
@@ -96,10 +97,39 @@
       }
     } catch (error) {
       aiStatus.classList.add("status-error");
-      aiStatus.textContent = `Ошибка AI: ${error.message || error}`;
+      const detail = String(error.message || error);
+      aiStatus.textContent = detail.includes("Receiving end does not exist")
+        ? "Нет связи с background-скриптом. Перезагрузите расширение в about:debugging."
+        : `Ошибка AI: ${detail}`;
       if (showToast) {
         showMessage("Не удалось проверить AI", true);
       }
+    }
+  }
+
+  async function testAiApi() {
+    aiStatus.classList.remove("status-error");
+    aiStatus.textContent = "Проверяю API запросом к модели…";
+    try {
+      const response = await api.runtime.sendMessage({
+        type: "food-outline:ai-test",
+      });
+      if (!response || !response.ok) {
+        throw new Error(
+          response && response.error ? response.error : "нет ответа"
+        );
+      }
+      aiStatus.textContent =
+        `${response.label}: ${response.model} · API OK за ${response.latencyMs} мс` +
+        ` · ответ: ${response.answer || "—"}`;
+      showMessage("API работает");
+    } catch (error) {
+      aiStatus.classList.add("status-error");
+      const detail = String(error.message || error);
+      aiStatus.textContent = detail.includes("Receiving end does not exist")
+        ? "Нет связи с background-скриптом. Перезагрузите расширение в about:debugging."
+        : `Ошибка API: ${detail}`;
+      showMessage("API не ответил", true);
     }
   }
 
@@ -192,6 +222,7 @@
     await checkAiConfig(false);
   });
   aiCheck.addEventListener("click", () => checkAiConfig(true));
+  aiTest.addEventListener("click", testAiApi);
   lmUrl.addEventListener("change", saveSettings);
   lmModel.addEventListener("change", saveSettings);
   exportButton.addEventListener("click", exportAll);

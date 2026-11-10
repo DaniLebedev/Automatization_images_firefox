@@ -1,7 +1,7 @@
 (function () {
   "use strict";
 
-  const HUD_VERSION = "0.1.8";
+  const HUD_VERSION = "0.1.9";
   const L = globalThis.FoodOutlineLib;
   if (!L) {
     return;
@@ -576,7 +576,18 @@
       );
     } catch (error) {
       render();
-      showMessage(`Анализ не удался: ${error.message || error}`, true);
+      const detail = String(error.message || error);
+      if (
+        detail.includes("Receiving end does not exist") ||
+        detail.includes("Could not establish connection")
+      ) {
+        showMessage(
+          "Связь с фоновой частью расширения потеряна. Перезагрузите расширение в about:debugging и нажмите F5 на странице CVAT.",
+          true
+        );
+        return;
+      }
+      showMessage(`Анализ не удался: ${detail}`, true);
     }
   }
 
