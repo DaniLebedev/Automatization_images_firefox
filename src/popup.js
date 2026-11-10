@@ -40,35 +40,40 @@
 
   async function ensureContentScript(tabId) {
     const existing = await sendRaw(tabId, "food-outline:status");
-    if (existing && existing.ok) {
+    if (existing && existing.ok && existing.uiReady) {
       return existing;
     }
     try {
-      await api.tabs.executeScript(tabId, {
-        code: "try { delete globalThis.__foodOutlineHudLoaded; } catch (e) {}",
-      });
       await api.tabs.executeScript(tabId, { file: "src/lib.js" });
       await api.tabs.executeScript(tabId, { file: "src/content.js" });
       await sleep(400);
-      return await sendRaw(tabId, "food-outline:status");
+      const status = await sendRaw(tabId, "food-outline:status");
+      return status || { ok: false, error: "content script did not respond" };
     } catch (error) {
       console.error("Food Outline injection failed", error);
-      return null;
+      return {
+        ok: false,
+        error: (error && error.message) || String(error),
+      };
     }
   }
 
   async function send(type) {
     if (!tab) {
-      return null;
+      return { ok: false, error: "no active tab" };
     }
-    await ensureContentScript(tab.id);
-    return sendRaw(tab.id, type);
+    const ensured = await ensureContentScript(tab.id);
+    if (!ensured || !ensured.ok) {
+      return ensured || { ok: false, error: "content script unavailable" };
+    }
+    return (await sendRaw(tab.id, type)) || { ok: false, error: "no response" };
   }
 
   function renderStatus(response) {
     if (!response || !response.ok) {
       setStatus(
-        "Панель недоступна на этой странице. Откройте CVAT или локальный CVAT.",
+        `Не удалось открыть панель: ${response && response.error ? response.error : "нет ответа"}. ` +
+          "Обновите страницу (F5) и проверьте разрешения расширения.",
         true
       );
       elements.done.disabled = true;
@@ -106,7 +111,10 @@
   elements.open.addEventListener("click", async () => {
     const response = await send("food-outline:open");
     if (!response || !response.ok) {
-      setStatus("Не удалось открыть панель на этой вкладке.", true);
+      setStatus(
+        `Не удалось открыть панель: ${response && response.error ? response.error : "нет ответа"}`,
+        true
+      );
       return;
     }
     window.close();
@@ -115,7 +123,10 @@
   elements.done.addEventListener("click", async () => {
     const response = await send("food-outline:mark-done");
     if (!response || !response.ok) {
-      setStatus("Не удалось отметить карточку.", true);
+      setStatus(
+        `Не удалось отметить: ${response && response.error ? response.error : "нет ответа"}`,
+        true
+      );
       return;
     }
     await refresh();

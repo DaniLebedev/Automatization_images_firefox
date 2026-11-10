@@ -1,11 +1,19 @@
 (function () {
   "use strict";
 
+  const HUD_VERSION = "0.1.2";
   const L = globalThis.FoodOutlineLib;
-  if (!L || globalThis.__foodOutlineHudLoaded) {
+  if (!L) {
     return;
   }
-  globalThis.__foodOutlineHudLoaded = true;
+  if (globalThis.__foodOutlineHudVersion === HUD_VERSION) {
+    return;
+  }
+  globalThis.__foodOutlineHudVersion = HUD_VERSION;
+  const previousHost = document.getElementById("food-outline-hud-root");
+  if (previousHost) {
+    previousHost.remove();
+  }
 
   const api = typeof browser !== "undefined" ? browser : chrome;
   const storage = api.storage.local;
@@ -645,6 +653,7 @@
     } else if (message.type === "food-outline:status") {
       sendResponse({
         ok: true,
+        uiReady: Boolean(shadow && panel),
         currentId,
         stats: stats(),
         hasRange: hasRange(),
