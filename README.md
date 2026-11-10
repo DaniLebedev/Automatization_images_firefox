@@ -85,7 +85,7 @@ Popup теперь умеет сам внедрять content script в откр
    - либо `about:addons` → **Food Outline Progress** → «Разрешения» → доступ к
      сайтам.
 4. Откройте `about:debugging#/runtime/this-firefox` и проверьте, что версия
-   расширения **0.1.3**. Если нет — удалите старую и загрузите `manifest.json`
+   расширения **0.1.5**. Если нет — удалите старую и загрузите `manifest.json`
    заново.
 5. Browser Console (`Ctrl+Shift+J`) — там будут строки `Food Outline ...` с
    точной причиной.
@@ -93,6 +93,25 @@ Popup теперь умеет сам внедрять content script в откр
 `Missing host permission for the tab` почти всегда значит, что popup открыт на
 служебной вкладке (`about:...`) или Firefox не дал доступ к сайту. На вкладке
 CVAT нажмите иконку расширения ещё раз.
+
+## Навигация по CVAT
+
+Текущий кадр читается из поля CVAT:
+
+```html
+<input class="ant-input-number-input" role="spinbutton" aria-valuenow="650" value="650">
+```
+
+Поддерживаются селекторы `header input.ant-input-number-input`, `aria-valuenow`
+и резервный XPath:
+
+```text
+/html/body/div[1]/div/main/div/header/div/div[2]/div/div[3]/div/div[2]/input
+```
+
+«Следующий»/«Готово» не перезагружают страницу: расширение меняет значение
+этого input, отправляет `input`/`change`/`Enter` и ждёт, пока CVAT обновит
+кадр. Перезагрузка используется только как резерв, если поле не найдено.
 
 ## Где хранится прогресс
 

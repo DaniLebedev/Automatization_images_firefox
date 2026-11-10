@@ -12,6 +12,7 @@
   bottom: 18px;
   width: 44px;
   height: 44px;
+  pointer-events: auto;
   border: 0;
   border-radius: 50%;
   background: linear-gradient(145deg, #ff9f43, #e06b1f);
@@ -37,6 +38,7 @@
   right: 18px;
   bottom: 18px;
   width: 306px;
+  pointer-events: auto;
   max-width: calc(100vw - 24px);
   background: rgba(20, 22, 27, 0.96);
   color: #f4f5f7;

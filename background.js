@@ -3,7 +3,7 @@
 
   const api = typeof browser !== "undefined" ? browser : chrome;
   const CVAT_PATTERN = /\/(tasks|jobs|task|job)\/\d+/i;
-  const VERSION = "0.1.3";
+  const VERSION = "0.1.5";
 
   async function inject(tabId) {
     try {

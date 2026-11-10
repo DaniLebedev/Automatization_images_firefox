@@ -60,6 +60,30 @@ test("isCvatLike recognizes CVAT and demo URLs", () => {
   assert.equal(L.isCvatLike("https://example.com/"), false);
 });
 
+test("parseIdFromDocument reads CVAT ant-input-number", () => {
+  const input = {
+    value: "650",
+    textContent: "",
+    getAttribute(name) {
+      return name === "aria-valuenow" ? "650" : null;
+    },
+  };
+  const doc = {
+    querySelector(selector) {
+      return selector.includes("ant-input-number-input") ? input : null;
+    },
+    querySelectorAll() {
+      return [];
+    },
+    evaluate() {
+      return { singleNodeValue: null };
+    },
+  };
+
+  assert.equal(L.parseIdFromDocument(doc), 650);
+  assert.equal(L.findFrameInput(doc), input);
+});
+
 test("buildReport includes completed ids", () => {
   const report = L.buildReport("scope", 1, 3, { 1: 1, 3: 1 }, 5000);
   assert.equal(report.completed, 2);

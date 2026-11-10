@@ -18,6 +18,51 @@
     "itemId",
   ];
 
+  const FRAME_INPUT_SELECTORS = [
+    'header input.ant-input-number-input[role="spinbutton"]',
+    'header input.ant-input-number-input',
+    'input.ant-input-number-input[aria-valuenow]',
+    'input[role="spinbutton"][aria-valuenow]',
+    'input[aria-label*="frame" i]',
+    'input[name*="frame" i]',
+    'input[id*="frame" i]',
+    'input[class*="frame" i]',
+    '[data-frame-number]',
+    '[data-testid*="frame" i]',
+  ];
+
+  const FRAME_INPUT_XPATH =
+    "/html/body/div[1]/div/main/div/header/div/div[2]/div/div[3]/div/div[2]/input";
+
+  function findFrameInput(doc) {
+    if (!doc || typeof doc.querySelector !== "function") {
+      return null;
+    }
+    for (const selector of FRAME_INPUT_SELECTORS) {
+      const element = doc.querySelector(selector);
+      if (element) {
+        return element;
+      }
+    }
+    if (typeof doc.evaluate === "function") {
+      try {
+        const result = doc.evaluate(
+          FRAME_INPUT_XPATH,
+          doc,
+          null,
+          9,
+          null
+        );
+        if (result && result.singleNodeValue) {
+          return result.singleNodeValue;
+        }
+      } catch (_error) {
+        return null;
+      }
+    }
+    return null;
+  }
+
   function parseIdFromUrl(rawUrl) {
     let url;
     try {
@@ -63,24 +108,13 @@
     if (!doc || typeof doc.querySelector !== "function") {
       return null;
     }
-    const selectors = [
-      'input[aria-label*="frame" i]',
-      'input[name*="frame" i]',
-      'input[id*="frame" i]',
-      'input[class*="frame" i]',
-      '[data-frame-number]',
-      '[data-testid*="frame" i]',
-    ];
-    for (const selector of selectors) {
-      const element = doc.querySelector(selector);
-      if (!element) {
-        continue;
-      }
+    const frameInput = findFrameInput(doc);
+    if (frameInput) {
       const raw =
-        element.getAttribute("data-frame-number") ||
-        element.value ||
-        element.getAttribute("value") ||
-        element.textContent ||
+        frameInput.value ||
+        frameInput.getAttribute("aria-valuenow") ||
+        frameInput.getAttribute("value") ||
+        frameInput.textContent ||
         "";
       const match = String(raw).match(/\d+/);
       if (match) {
@@ -257,6 +291,7 @@
     buildReport,
     completedIds,
     computeStats,
+    findFrameInput,
     formatDuration,
     formatEta,
     isCvatLike,

@@ -1,7 +1,7 @@
 (function () {
   "use strict";
 
-  const HUD_VERSION = "0.1.3";
+  const HUD_VERSION = "0.1.5";
   const L = globalThis.FoodOutlineLib;
   if (!L) {
     return;
@@ -309,6 +309,41 @@
     if (id === null || id === undefined) {
       return;
     }
+    const frameInput = L.findFrameInput(document);
+    if (frameInput) {
+      frameInput.focus();
+      const setter = Object.getOwnPropertyDescriptor(
+        window.HTMLInputElement.prototype,
+        "value"
+      )?.set;
+      if (setter) {
+        setter.call(frameInput, String(id));
+      } else {
+        frameInput.value = String(id);
+      }
+      const enter = {
+        key: "Enter",
+        code: "Enter",
+        keyCode: 13,
+        which: 13,
+        bubbles: true,
+      };
+      frameInput.dispatchEvent(new Event("input", { bubbles: true }));
+      frameInput.dispatchEvent(new Event("change", { bubbles: true }));
+      frameInput.dispatchEvent(new KeyboardEvent("keydown", enter));
+      frameInput.dispatchEvent(new KeyboardEvent("keypress", enter));
+      frameInput.dispatchEvent(new KeyboardEvent("keyup", enter));
+      manualCurrent = id;
+      currentId = id;
+      render();
+      window.setTimeout(() => {
+        manualCurrent = null;
+        syncCurrentId();
+        render();
+      }, 1000);
+      return;
+    }
+
     manualCurrent = null;
     const parsed = L.parseIdFromUrl(location.href);
     const url = new URL(location.href);
@@ -327,28 +362,17 @@
       url.searchParams.set("frame", String(id));
     }
 
-    const frameInput = document.querySelector(
-      'input[aria-label*="frame" i], input[name*="frame" i], input[id*="frame" i]'
-    );
-    if (frameInput) {
-      frameInput.focus();
-      frameInput.value = String(id);
-      frameInput.dispatchEvent(new Event("input", { bubbles: true }));
-      frameInput.dispatchEvent(new Event("change", { bubbles: true }));
-      frameInput.dispatchEvent(
-        new KeyboardEvent("keydown", { key: "Enter", bubbles: true })
-      );
-    }
     const jumpButton = [...document.querySelectorAll("button, [role='button']")].find(
-      (button) => /go to|перейти|jump/i.test(button.getAttribute("aria-label") || button.textContent || "")
+      (button) =>
+        /go to|перейти|jump/i.test(
+          button.getAttribute("aria-label") || button.textContent || ""
+        )
     );
     if (jumpButton) {
       jumpButton.click();
       return;
     }
-    if (!frameInput) {
-      location.assign(url.toString());
-    }
+    location.assign(url.toString());
   }
 
   function resetProgress() {
@@ -446,11 +470,11 @@
     const host = document.createElement("div");
     host.id = "food-outline-hud-root";
     host.style.position = "fixed";
+    host.style.inset = "0";
+    host.style.width = "100vw";
+    host.style.height = "100vh";
+    host.style.pointerEvents = "none";
     host.style.zIndex = "2147483647";
-    host.style.top = "0";
-    host.style.left = "0";
-    host.style.width = "0";
-    host.style.height = "0";
     document.documentElement.appendChild(host);
     shadow = host.attachShadow({ mode: "open" });
     const style = document.createElement("style");
